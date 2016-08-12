@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="assets/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
+    <!-- <link href="assets/css/style.css" rel="stylesheet" type="text/css"> -->
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="assets/js/d3.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+</head>
+
+<body>
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-lg-6 col-md-6 col-sm-12">
+            <div id="lineBar"></div>
+         </div>
+      </div>
+   </div>
+
+<script>
+$(document).ready(function () {
+   $('#lineBar').highcharts({
+     chart: {
+         zoomType: 'xy',
+     },
+     title: {
+         text: 'Total Visitor Arrivals'
+     },
+     xAxis: [{
+         categories: [2014, 2015],
+         crosshair: true
+     }],
+     yAxis: [{ // Primary yAxis
+         labels: {
+             format: '{value}',
+             style: {
+                 color: Highcharts.getOptions().colors[1]
+             }
+         },
+         title: {
+             text: 'Rate of Change (%)',
+             style: {
+                 color: Highcharts.getOptions().colors[1]
+             }
+         }
+     }, { // Secondary yAxis
+         title: {
+             text: 'Total Visitor Arrivals',
+             style: {
+                 color: Highcharts.getOptions().colors[0]
+             }
+         },
+         labels: {
+             format: '{value}',
+             style: {
+                 color: Highcharts.getOptions().colors[0]
+             }
+         },
+         opposite: true
+     }],
+     tooltip: {
+         shared: true
+     },
+     legend: {
+         layout: 'vertical',
+         align: 'left',
+         x: 120,
+         verticalAlign: 'top',
+         y: 100,
+         floating: true,
+         backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+     },
+     series: [{
+         name: 'Total Visitor Arrivals',
+         type: 'column',
+         yAxis: 1,
+         data: [636, 627],
+         tooltip: {
+             valueSuffix: ' '
+         }
+
+     }, {
+         name: 'Rate of Change (%)',
+         type: 'spline',
+         data: [1.5, 1.4],
+         tooltip: {
+             valueSuffix: '%'
+         }
+     }]
+  });
+});
+</script>
+</body>
+</html>
