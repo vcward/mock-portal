@@ -6,93 +6,91 @@
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="assets/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css">
     <!-- <link href="assets/css/style.css" rel="stylesheet" type="text/css"> -->
-    <script src="assets/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/d3.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="assets/js/lineBar.js"></script>
+
 </head>
 
 <body>
+   <nav class="navbar navbar-default">
+      <div class="container-fluid">
+         <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+               <span class="sr-only">Toggle navigation</span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Data Portal</a>
+         </div>
+
+         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+               <li><a href="#">Home</a></li>
+               <li><a href="#">Tables</a></li>
+               <li><a href="#">Graphs</a></li>
+               <li><a href="#">Forecasts</a></li>
+               <li><a href="#">UHERO</a></li>
+            </ul>
+         </div>
+      </div>
+   </nav>
+
    <div class="container-fluid">
       <div class="row">
+         <div class="col-lg-6 col-md-6 col-sm-12">
+            <ul id="categoryList">Categories</ul>
+         </div>
          <div class="col-lg-6 col-md-6 col-sm-12">
             <div id="lineBar"></div>
          </div>
       </div>
    </div>
 
-<script>
-$(document).ready(function () {
-   $('#lineBar').highcharts({
-     chart: {
-         zoomType: 'xy',
-     },
-     title: {
-         text: 'Total Visitor Arrivals'
-     },
-     xAxis: [{
-         categories: [2014, 2015],
-         crosshair: true
-     }],
-     yAxis: [{ // Primary yAxis
-         labels: {
-             format: '{value}',
-             style: {
-                 color: Highcharts.getOptions().colors[1]
-             }
-         },
-         title: {
-             text: 'Rate of Change (%)',
-             style: {
-                 color: Highcharts.getOptions().colors[1]
-             }
-         }
-     }, { // Secondary yAxis
-         title: {
-             text: 'Total Visitor Arrivals',
-             style: {
-                 color: Highcharts.getOptions().colors[0]
-             }
-         },
-         labels: {
-             format: '{value}',
-             style: {
-                 color: Highcharts.getOptions().colors[0]
-             }
-         },
-         opposite: true
-     }],
-     tooltip: {
-         shared: true
-     },
-     legend: {
-         layout: 'vertical',
-         align: 'left',
-         x: 120,
-         verticalAlign: 'top',
-         y: 100,
-         floating: true,
-         backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
-     },
-     series: [{
-         name: 'Total Visitor Arrivals',
-         type: 'column',
-         yAxis: 1,
-         data: [636, 627],
-         tooltip: {
-             valueSuffix: ' '
-         }
+   <script>
+      d3.json('http://localhost:8080/v1/category', function(data) {
+         var categories = data.categories;
 
-     }, {
-         name: 'Rate of Change (%)',
-         type: 'spline',
-         data: [1.5, 1.4],
-         tooltip: {
-             valueSuffix: '%'
+         var dataMap = categories.reduce(function(map, value) {
+            map[value.id] = value;
+            return map;
+         }, {});
+
+         console.log(categories);
+
+         var categoryTree = [];
+         categories.forEach(function(value) {
+            var parent = dataMap[value.parent];
+            if(parent) {
+               (parent.children || (parent.children = []))
+                  .push(value);
+            } else {
+               categoryTree.push(value);
+            }
+         });
+
+         console.log(categoryTree);
+
+         var list = d3.select('#categoryList');
+         list.selectAll('li')
+            .data(categoryTree)
+            .enter().append('li')
+            .text(function(d) { return d.name; })
+            .on('click', expand);
+
+         function expand(d) {
+            d3.select(this)
+               .on('click', null)
+               .append('ul')
+               .selectAll('li')
+               .data(d.children)
+               .enter().append('li')
+               .text(function(d) { return d.name; });
          }
-     }]
-  });
-});
-</script>
+      });
+   </script>
 </body>
 </html>
