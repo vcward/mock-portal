@@ -26,6 +26,9 @@ d3.json('http://localhost:8080/v1/series/observations?id=1', function(data) {
       chart: {
          renderTo: lineBar
       },
+      title: {
+         text: 'Total Visitor Arrivals'
+      },
       xAxis: {
          categories: dates.reverse()
       },

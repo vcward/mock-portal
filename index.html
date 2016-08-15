@@ -10,6 +10,7 @@
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/d3.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="assets/js/chartTheme.js"></script>
     <script src="assets/js/lineBar.js"></script>
 
 </head>
@@ -83,13 +84,20 @@
 
          function expand(d) {
             d3.select(this)
-               .on('click', null)
+               .on('click', collapse)
                .append('ul')
                .selectAll('li')
                .data(d.children)
                .enter().append('li')
                .text(function(d) { return d.name; });
-         }
+         };
+
+         function collapse(d) {
+            d3.select(this)
+               .on('click', expand)
+               .selectAll('li')
+               .remove()
+         };
       });
    </script>
 </body>
