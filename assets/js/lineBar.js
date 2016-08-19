@@ -51,12 +51,13 @@ d3.json('http://localhost:8080/v1/series/observations?id=1', function(data) {
       series: [{
          name: 'Rate of Change (%)',
          type: 'column',
-         data: percValues.reverse()
+         data: [1.5, 2, null, 2.3]
+         //data: percValues.reverse()
       }, {
          name: 'Total Visitor Arrivals',
-         type: 'spline',
+         type: 'line',
          yAxis: 1,
-         data: levelValues.reverse()
+         data: [685.30, 705.10, 693.65, 713.45]
       }]
    });
 });
