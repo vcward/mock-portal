@@ -21,22 +21,25 @@ d3.json('http://localhost:8080/v1/category', function(data) {
 
    function seriesMultiples(data) {
       var newRow = d3.select('.container-fluid')
+         .selectAll('div')
+         .data(data)
+         .enter()
          .append('div')
          .classed('row', true);
-      var category = newRow.selectAll('h2')
-         .data(categoryTree)
-         .enter()
-         .append('h2')
-         .text(function(d) {
-            return d.name
+
+      newRow.append('h2')
+         .html(function(d) {
+            return d.name;
          });
 
-      var subcategory = newRow.selectAll('h3')
-         .data(categoryTree)
-         .enter()
-         .append('h3');
-
-
+      var subcat = newRow.selectAll('h3')
+         .data(function(d) {
+            return d.children;
+         })
+         .enter().append('h3')
+         .text(function(d) {
+            return d.name;
+         });
    }
 
    seriesMultiples(categoryTree);
