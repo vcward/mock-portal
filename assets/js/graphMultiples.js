@@ -1,14 +1,17 @@
 // Load Categories, series, and observation data
 
+var seriesId = 1
+
 queue()
    .defer(d3.json, 'http://localhost:8080/v1/category')
-   .defer(d3.json, 'http://localhost:8080/v1/category/series?id=1&freq=A&geo=15000')
-   .defer(d3.json, 'http://localhost:8080/v1/series/observations?id=1')
+   .defer(d3.json, 'http://localhost:8080/v1/category/series?id=' + seriesId)
+   .defer(d3.json, 'http://localhost:8080/v1/series/observations?id=' + seriesId)
    .await(seriesMultiples);
 
 function seriesMultiples(error, cats, series, obs) {
    var categories = cats.categories;
 
+   // Create nested json of categories & subcategories
    var dataMap = categories.reduce(function(map, value) {
       map[value.id] = value;
       return map;
@@ -25,20 +28,18 @@ function seriesMultiples(error, cats, series, obs) {
       }
    });
 
-   console.log(categoryTree);
-
    var series = series.series;
+   var seriesA =[]
 
-   // Annual Series
-   var seriesA = function(data) {
+   // Select series with annual frequency
+   var findAnnual = function(data) {
       for(i = 0; i < data.length; i++) {
          if(data[i].frequencyShort == 'A') {
-            return data[i];
-         } else {
-            return;
+            seriesA.push(data[i]);
          }
       }
    }
+   findAnnual(series);
 
    var level = obs.transformationResults[0].observations;
    var perc = obs.transformationResults[1].observations;
@@ -53,6 +54,8 @@ function seriesMultiples(error, cats, series, obs) {
    }
 
    function seriesMultiples(data) {
+
+      // Create new row for each category
       var newRow = d3.select('.container-fluid')
          .selectAll('div')
          .data(data)
@@ -60,11 +63,13 @@ function seriesMultiples(error, cats, series, obs) {
          .append('div')
          .classed('row', true);
 
+      // Add heading for categories
       newRow.append('h2')
-         .html(function(d) {
+         .text(function(d) {
             return d.name;
          });
 
+      // Add heading for subcategories
       var subcat = newRow.selectAll('h3')
          .data(function(d) {
             return d.children;
@@ -72,10 +77,24 @@ function seriesMultiples(error, cats, series, obs) {
          .enter().append('h3')
          .text(function(d) {
             return d.name;
+         })
+         .attr('id', function(d) {
+            return 'subcat_' + d.id;
          });
 
-      var seriesContainer = newRow.selectAll('div')
-         .data([seriesA(series)])
+      var chartsContainer = d3.selectAll('.row > h3')
+         .each(function(d) {
+            var chartDiv = document.createElement('div');
+            this.parentNode.insertBefore(chartDiv, this.nextSibling);
+            d3.select(chartDiv)
+               .classed('col-lg-12', true)
+               .classed('chartContainer', true)
+               .attr('id', 'subcat_' + d.id)
+         });
+
+      var seriesChart = d3.select('.chartContainer')
+         .selectAll('div')
+         .data(seriesA)
          .enter()
          .append('div')
          .attr('id', function(d) {
@@ -84,9 +103,8 @@ function seriesMultiples(error, cats, series, obs) {
          .classed('col-lg-3', true);
    }
 
+   console.log(seriesA);
    seriesMultiples(categoryTree);
-   console.log(seriesA(series))
-   console.log(obs)
 
    new Highcharts.chart({
       chart: {
@@ -139,15 +157,75 @@ function seriesMultiples(error, cats, series, obs) {
       series: [{
          name: 'Rate of Change (%)',
          type: 'column',
-         data: [1.5, 2, null, 2.3]
-         //data: percValues.reverse()
+         data: percValues.reverse()
       }, {
          name: 'Total Visitor Arrivals',
          type: 'line',
          yAxis: 1,
-         data: [685.30, 705.10, 693.65, 713.45]
+         data: levelValues.reverse()
       }]
    });
+
+   new Highcharts.chart({
+      chart: {
+         renderTo: 'series_VIS@HON.A',
+         height: 250
+      },
+      title: {
+         text: ''
+         //text: 'Total Visitor Arrivals'
+      },
+      legend: {
+         enabled: false
+      },
+      credits: {
+         enabled: false
+      },
+      tooltip: {
+         enabled: false
+      },
+      xAxis: [{
+         categories: dates,
+         labels: {
+            enabled: false
+         },
+         lineWidth: 0,
+         tickLength: 0,
+      }],
+      yAxis: [{
+         labels: {
+            enabled: false
+            //format: '{value}'
+         },
+         title: {
+            text: ''
+            //text: 'Rate of Change (%)'
+         },
+         gridLineColor: 'transparent'
+      }, {
+         title: {
+            text: ''
+            //text: 'Total Visitor Arrivals'
+         },
+         labels: {
+            enabled: false
+            //format: '{value}'
+         },
+         gridLineColor: 'transparent',
+         opposite: true
+      }],
+      series: [{
+         name: 'Rate of Change (%)',
+         type: 'column',
+         data: percValues
+      }, {
+         name: 'Total Visitor Arrivals',
+         type: 'line',
+         yAxis: 1,
+         data: levelValues
+      }]
+   });
+
 }
 
 /* d3.json('http://localhost:8080/v1/category', function(data) {
