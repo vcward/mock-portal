@@ -22,30 +22,43 @@ d3.json('http://localhost:8080/v1/category', function(data) {
    console.log(categoryTree);
 
    var list = d3.select('#sidebar-list');
+
    list.selectAll('li')
       .data(categoryTree)
       .enter()
       .append('li')
-      .text(function(d) { return d.name; })
+      .text(function(d) {
+         return d.name;
+      })
       .on('click', expand);
 
    function expand(d) {
-      d3.select(this)
+      d3.event.stopPropagation();
+
+      var ul = d3.select(this)
          .on('click', collapse)
          .append('ul')
-         .selectAll('li')
+
+      var li = ul.selectAll('li')
          .data(d.children)
-         .enter().append('li').append('a')
-         .text(function(d) { return d.name; })
+         .enter()
+         .append('li')
+         .append('a')
+         .text(function(d) {
+            return d.name;
+         })
          .attr('href', function(d) {
             return '#' + d.id;
-         });
+         })
+         .on('click', expand);
    };
 
    function collapse(d) {
+      d3.event.stopPropagation();
+
       d3.select(this)
          .on('click', expand)
-         .selectAll('li')
-         .remove()
+         .selectAll('*')
+         .remove();
    };
 });
