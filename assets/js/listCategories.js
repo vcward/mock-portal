@@ -35,8 +35,11 @@ d3.json('http://localhost:8080/v1/category', function(data) {
          .append('ul')
          .selectAll('li')
          .data(d.children)
-         .enter().append('li')
-         .text(function(d) { return d.name; });
+         .enter().append('li').append('a')
+         .text(function(d) { return d.name; })
+         .attr('href', function(d) {
+            return '#' + d.id;
+         });
    };
 
    function collapse(d) {
