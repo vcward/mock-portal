@@ -1,7 +1,7 @@
-#wrapper {
+/* #wrapper {
   padding-left: 100px;
   transition: all 0.4s ease 0s;
-}
+} */
 
 #about-links ul li {
    display: inline-block;;
@@ -38,23 +38,16 @@ div.chartsContainer.hide {
    display: none;
 }
 
-/* #sidebar-wrapper {
-  margin-left: -250px;
-  left: 250px;
-  width: 250px;
+#sidebar-wrapper {
   background: #CCC;
-  position: fixed;
-  height: 100%;
   overflow-y: auto;
-  z-index: 1000;
-  transition: all 0.4s ease 0s;
-} */
+}
 
-/* .sidebar-nav {
+#sidebar-wrapper select {
+   margin: 10px 0px;
+}
+
+.sidebar-nav {
   position: absolute;
-  top: 0;
-  width: 250px;
   list-style: none;
-  margin: 0;
-  padding: 0;
-} */
+}

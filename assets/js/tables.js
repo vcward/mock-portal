@@ -1,14 +1,20 @@
 d3.json('http://localhost:8080/v1/series/observations?id=1', function(data) {
    var level = data.transformationResults[0].observations;
    var perc = data.transformationResults[1].observations;
-   var levelValues = [];
-   var percValues = [];
+   var levelData = [];
+   var percData = [];
    var dates = [];
 
-   for(i = 0; i < level.length; i++) {
+   /* for(i = 0; i < level.length; i++) {
       levelValues.push(+level[i].value);
-      dates.push(level[i].date);
+      dates.push(Date.parse(level[i].date));
       percValues.push(+perc[i].value);
+   } */
+
+   // Use [date, value] pairs for Highstock charts
+   for(i = 0; i < level.length; i++) {
+      levelData.push([Date.parse(level[i].date), +level[i].value])
+      percData.push([Date.parse(level[i].date), +perc[i].value])
    }
 
    console.log('Level data: ');
@@ -21,7 +27,8 @@ d3.json('http://localhost:8080/v1/series/observations?id=1', function(data) {
    console.log(percValues);
    console.log('Observation dates: ');
    console.log(dates); */
-   function drawTable(data, columns) {
+
+   /* function drawTable(data, columns) {
       var table = d3.select('#table')
          .append('table');
       var thead = table.append('thead');
@@ -55,5 +62,5 @@ d3.json('http://localhost:8080/v1/series/observations?id=1', function(data) {
       return table;
    }
 
-   drawTable(level, ['indicator', 'date', 'value', 'source']);
+   drawTable(level, ['indicator', 'date', 'value', 'source']); */
 });

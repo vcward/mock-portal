@@ -1,9 +1,9 @@
 // Load Categories, series, and observation data
 
-var seriesId = [3, 4]
+//var seriesId = [3, 4]
 
-function get_series(id) {
-  var catId = 3;
+function get_default_series(id) {
+  //var catId = 3;
   queue()
     .defer(d3.json, 'http://localhost:8080/v1/category')
     .defer(d3.json, 'http://localhost:8080/v1/geo')
@@ -12,9 +12,12 @@ function get_series(id) {
     .await(seriesMultiples);
 }
 
-for (i = 0; i < seriesId.length; i++) {
+// Default landing page view, Load data from summary category
+get_default_series(1);
+
+/* for (i = 0; i < seriesId.length; i++) {
   get_series(seriesId[i]);
-}
+}*/
 
 function drawSeriesContainer(catData, seriesData, geo) {
 
@@ -27,12 +30,26 @@ function drawSeriesContainer(catData, seriesData, geo) {
     .enter()
     .append('li')
     .append('a')
-    .attr('href', function(d) {
-      return '#' + d.name;
-    })
+    /* .attr('href', function(d) {
+      return '#' + d.id;
+   }) */
+    .attr('id', function(d) {
+      return d.id;
+   })
     .text(function(d) {
       return d.name;
-    });
+    })
+    .on('click', loadNewSeries);
+
+  function loadNewSeries(d) {
+     series_id = d3.select(this).attr('id');
+     queue()
+     .defer(d3.json, 'http://localhost:8080/v1/category')
+     .defer(d3.json, 'http://localhost:8080/v1/geo')
+     .defer(d3.json, 'http://localhost:8080/v1/category/series?id=' + series_id)
+     .defer(d3.json, 'http://localhost:8080/v1/series/observations?id=' + series_id)
+     .await(seriesMultiples);
+  }
 
   // Create series chart constainers
   var newChart = d3.select('#graphsContainer')
@@ -46,61 +63,6 @@ function drawSeriesContainer(catData, seriesData, geo) {
     })
     .classed('col-lg-3', true);
 }
-
-/* function drawSeriesContainers(catData, seriesData) {
-
-   // Create new row for each category
-   var newRow = d3.select('.container-fluid')
-      .selectAll('div')
-      .data(catData)
-      .enter()
-      .append('div')
-      .classed('row', true);
-
-   // Add heading for categories
-   newRow.append('h2')
-      .text(function(d) {
-         return d.name;
-      });
-
-   // Add heading for subcategories
-   var subcat = newRow.selectAll('h3')
-      .data(function(d) {
-         return d.children;
-      })
-      .enter().append('h3')
-      .append('a')
-      .text(function(d) {
-         return d.name;
-      })
-      .attr('id', function(d) {
-         return 'subcat_' + d.id;
-      })
-      .attr('name', function(d) {
-         return d.id;
-      });
-
-   var chartsContainer = d3.selectAll('.row > h3')
-      .each(function(d) {
-         // Add container div for series charts based on category
-         var chartDiv = document.createElement('div');
-         this.parentNode.insertBefore(chartDiv, this.nextSibling);
-         d3.select(chartDiv)
-            .classed('col-lg-12', true)
-            .classed('chartContainer', true)
-            .attr('id', 'subcat_' + d.id);
-      });
-
-   var seriesChart = d3.selectAll('.chartContainer')
-      .selectAll('div')
-      .data(seriesData)
-      .enter()
-      .append('div')
-      .attr('id', function(d) {
-         return 'series_' + d.id;
-      })
-      .classed('col-lg-3', true);
-} */
 
 function seriesMultiples(error, cats, geo, series, obs) {
   var categories = cats.categories;
